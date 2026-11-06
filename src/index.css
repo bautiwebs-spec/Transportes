@@ -1,13 +1,10 @@
 @import 'tailwindcss';
 
 /* ------------------------------------------------------------------
-   Identidad visual — Transportes RE S.R.L.
-   Paleta construida alrededor del logo oficial.
+   Transportes RE — V2 · "Desde 1960, una historia en movimiento"
+   Paleta construida alrededor del logo oficial. Sin naranja.
 ------------------------------------------------------------------- */
 @theme {
-  /* Azul RE: #087FC9 para acentos, íconos y tipografía grande.
-     re-600 / re-700: variantes más profundas para botones con texto blanco
-     (contraste AA). */
   --color-re: #087fc9;
   --color-re-600: #0773b8;
   --color-re-700: #0866a3;
@@ -15,28 +12,30 @@
 
   --color-graphite: #252d3a;
   --color-graphite-900: #1b222c;
+  --color-graphite-700: #323b4a;
   --color-ink: #252d3a;
   --color-ink-soft: #4f5b6b;
   --color-ink-mute: #6b7685;
 
-  --color-mist: #e9eff4; /* gris azulado */
-  --color-fog: #d3e0ea; /* azul niebla */
-  --color-smoke: #f6f8fa; /* blanco humo */
+  --color-mist: #e9eff4;
+  --color-fog: #d3e0ea;
+  --color-smoke: #f6f8fa;
   --color-line: #dbe3ea;
 
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Manrope Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Archivo Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-white font-sans text-ink antialiased;
+    @apply bg-smoke font-sans text-ink antialiased;
     font-feature-settings: 'cv11', 'ss01';
     text-rendering: optimizeLegibility;
   }
@@ -47,7 +46,7 @@
   :focus-visible {
     outline: 2px solid var(--color-re);
     outline-offset: 3px;
-    border-radius: 4px;
+    border-radius: 6px;
   }
   img {
     max-width: 100%;
@@ -56,92 +55,240 @@
 }
 
 @layer components {
-  /* Jerarquía tipográfica */
+  /* ── Tipografía ─────────────────────────────────────────── */
+  .t-mega {
+    font-family: var(--font-display);
+    font-stretch: 112%;
+    font-weight: 760;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+    font-size: clamp(2.75rem, 1.2rem + 7.4vw, 8.4rem);
+  }
+  @media (max-width: 639px) {
+    .t-mega {
+      font-stretch: 100%;
+      letter-spacing: -0.04em;
+    }
+  }
   .t-display {
     font-family: var(--font-display);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1.02;
-    font-size: clamp(2.6rem, 1.6rem + 4.2vw, 5.1rem);
+    font-stretch: 110%;
+    font-weight: 740;
+    letter-spacing: -0.04em;
+    line-height: 0.96;
+    font-size: clamp(2.7rem, 1.4rem + 5vw, 6rem);
   }
   .t-h2 {
     font-family: var(--font-display);
-    font-weight: 750;
-    letter-spacing: -0.03em;
-    line-height: 1.08;
-    font-size: clamp(2rem, 1.45rem + 2.2vw, 3.25rem);
+    font-stretch: 108%;
+    font-weight: 720;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    font-size: clamp(2.2rem, 1.4rem + 3.1vw, 4.4rem);
   }
   .t-h3 {
     font-family: var(--font-display);
-    font-weight: 700;
+    font-stretch: 104%;
+    font-weight: 680;
     letter-spacing: -0.02em;
-    line-height: 1.2;
-    font-size: clamp(1.2rem, 1.1rem + 0.4vw, 1.45rem);
+    line-height: 1.1;
+    font-size: clamp(1.3rem, 1.1rem + 0.7vw, 1.75rem);
+  }
+  /* Acento editorial: serif itálica para palabras clave */
+  .t-accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-stretch: 100%;
+    letter-spacing: -0.02em;
   }
   .t-lead {
     font-size: clamp(1.075rem, 1rem + 0.35vw, 1.25rem);
     line-height: 1.6;
   }
-  .t-eyebrow {
-    font-size: 0.75rem;
+  .t-label {
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
   }
-
-  /* Numeral contorneado: recurso visual para "1960" */
   .numeral-outline {
     font-family: var(--font-display);
+    font-stretch: 115%;
     font-weight: 800;
-    letter-spacing: -0.05em;
-    line-height: 0.85;
-    color: transparent;
-    -webkit-text-stroke: 1.5px var(--color-re);
+    letter-spacing: -0.06em;
+    line-height: 0.8;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 1.5px currentColor;
   }
 
-  /* Foto de archivo: tratamiento editorial (no modifica el archivo original) */
   .archive-photo {
     filter: grayscale(1) contrast(1.08) brightness(1.02);
   }
-
-  /* Placeholder rayado para fotos pendientes */
   .placeholder-hatch {
     background-color: var(--color-mist);
-    background-image: repeating-linear-gradient(
-      -45deg,
-      transparent 0 14px,
-      rgb(8 127 201 / 0.07) 14px 15px
-    );
+    background-image: repeating-linear-gradient(-45deg, transparent 0 14px, rgb(8 127 201 / 0.07) 14px 15px);
+  }
+
+  /* ── Enlace con subrayado animado ───────────────────────── */
+  .link-u {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1.5px;
+    background-position: 100% 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.45s var(--ease-out-soft);
+    padding-bottom: 2px;
+  }
+  .link-u:hover,
+  a:hover > .link-u,
+  a:focus-visible > .link-u,
+  a.link-u:focus-visible,
+  [aria-current='page'] > .link-u {
+    background-size: 100% 1.5px;
+    background-position: 0% 100%;
   }
 }
 
-/* Aparición discreta al hacer scroll */
-.reveal {
-  opacity: 0;
-  transform: translateY(18px);
-  transition:
-    opacity 0.7s var(--ease-out-soft),
-    transform 0.7s var(--ease-out-soft);
-  transition-delay: var(--reveal-delay, 0ms);
+/* ------------------------------------------------------------------
+   Movimiento
+   Todo el contenido es visible por defecto. Los estados ocultos solo
+   se aplican cuando el script activó html.motion-ok, y nunca con
+   prefers-reduced-motion. Si JS o las animaciones fallan, se ve todo.
+------------------------------------------------------------------- */
+
+/* Secuencia de entrada (CSS puro: arranca con el primer pintado) */
+@keyframes in-up {
+  from {
+    transform: translate3d(0, 105%, 0);
+  }
+  to {
+    transform: none;
+  }
 }
-.reveal[data-visible='true'] {
-  opacity: 1;
-  transform: none;
+@keyframes in-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes in-mask {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes in-zoom {
+  from {
+    transform: scale(1.18);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes in-header {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .motion-ok .enter-header {
+    animation: in-header 0.6s var(--ease-out-soft) both;
+  }
+  .motion-ok .enter-line > span {
+    display: inline-block;
+    animation: in-up 0.95s var(--ease-out-soft) both;
+    animation-delay: calc(0.15s + var(--i, 0) * 0.09s);
+  }
+  .motion-ok .enter-mask {
+    animation: in-mask 1.1s var(--ease-in-out-soft) both;
+    animation-delay: 0.3s;
+  }
+  .motion-ok .enter-mask img {
+    animation: in-zoom 1.6s var(--ease-out-soft) both;
+    animation-delay: 0.3s;
+  }
+  .motion-ok .enter-fade {
+    animation: in-fade-up 0.8s var(--ease-out-soft) both;
+    animation-delay: calc(0.75s + var(--i, 0) * 0.08s);
+  }
+
+  /* Revelado al hacer scroll (lo activa el componente Reveal) */
+  .motion-ok .rv {
+    transition:
+      opacity 0.9s var(--ease-out-soft),
+      transform 0.9s var(--ease-out-soft),
+      clip-path 1.1s var(--ease-in-out-soft);
+    transition-delay: var(--d, 0ms);
+  }
+  .motion-ok .rv[data-in='false'].rv-up {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  .motion-ok .rv[data-in='false'].rv-left {
+    opacity: 0;
+    transform: translate3d(-48px, 0, 0);
+  }
+  .motion-ok .rv[data-in='false'].rv-right {
+    opacity: 0;
+    transform: translate3d(48px, 0, 0);
+  }
+  .motion-ok .rv[data-in='false'].rv-mask {
+    clip-path: inset(100% 0 0 0);
+  }
+  .motion-ok .rv[data-in='false'].rv-mask-x {
+    clip-path: inset(0 100% 0 0);
+  }
+  .motion-ok .rv[data-in='false'].rv-fade {
+    opacity: 0;
+  }
+  /* títulos por líneas */
+  .motion-ok .rv-lines > span > span {
+    display: inline-block;
+    transition: transform 1s var(--ease-out-soft);
+    transition-delay: calc(var(--d, 0ms) + var(--i, 0) * 90ms);
+  }
+  .motion-ok .rv-lines[data-in='false'] > span > span {
+    transform: translate3d(0, 110%, 0);
+  }
+}
+
+/* Carga inicial de respaldo: si la app no arranca, aparece a los 2,5 s */
+@keyframes fallback-in {
+  to {
+    opacity: 1;
+  }
+}
+.boot-fallback {
+  opacity: 0;
+  animation: fallback-in 0.4s ease 2.5s forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-fallback {
+    animation-duration: 0.4s !important;
+    animation-delay: 2.5s !important;
   }
 }

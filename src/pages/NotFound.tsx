@@ -11,7 +11,7 @@ export function NotFound() {
         <h1 className="t-display mt-6 max-w-3xl text-graphite">Este camino no lleva a ningún lado.</h1>
         <p className="t-lead mt-6 max-w-xl text-ink-soft">La página que buscás no existe o cambió de dirección.</p>
         <div className="mt-10">
-          <Button to="/" iconRight="arrowRight">
+          <Button to="/" arrow>
             Volver al inicio
           </Button>
         </div>

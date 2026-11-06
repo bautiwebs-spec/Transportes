@@ -1,82 +1,211 @@
-import flota from '../assets/img/flota-el-talar.webp'
-import { company, contact, whatsappMessages } from '../data/company'
+import { useRef, useState, type MouseEvent } from 'react'
+import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from 'motion/react'
+import { company, whatsappMessages } from '../data/company'
 import { fleetDetails, services } from '../data/services'
 import { usePageMeta } from '../hooks/usePageMeta'
-import { Container, Eyebrow, Section, SectionHeading } from '../components/ui/Layout'
+import { useFinePointer, useMotionOK } from '../hooks/useMedia'
+import { whatsappUrl } from '../lib/whatsapp'
 import { Icon } from '../components/ui/Icon'
-import { Reveal } from '../components/ui/Reveal'
+import { Label } from '../components/ui/Label'
 import { PendingNote } from '../components/ui/Pending'
 import { PhotoPlaceholder } from '../components/ui/Photo'
-import { WhatsAppButton } from '../components/ui/Button'
+import { TextLink, WhatsAppButton } from '../components/ui/Button'
+import { Reveal, RevealLines } from '../components/motion/Reveal'
 import { PageHero } from '../components/sections/PageHero'
 import { CtaBand } from '../components/sections/CtaBand'
-import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { ServiceVisual } from '../components/sections/ServiceVisual'
 
-/** Visual de cada servicio. Cambiar acá cuando lleguen fotos nuevas de la flota. */
-function ServiceVisual({ id }: { id: string }): ReactNode {
-  switch (id) {
-    case 'cargas-generales':
-      return <PhotoPlaceholder label="Camión en operación de carga" className="aspect-[4/3] w-full" />
-    case 'flota-propia':
-      return (
-        <div className="overflow-hidden rounded-2xl bg-fog">
-          <img
-            src={flota}
-            alt="Camiones de la flota propia de Transportes RE"
-            width={1080}
-            height={355}
-            loading="lazy"
-            className="aspect-[4/3] w-full object-cover object-[30%_55%]"
+const wrap = 'mx-auto w-full max-w-[1320px] px-5 sm:px-8 lg:px-10'
+
+/**
+ * Lista editorial de servicios.
+ * Con mouse: al pasar sobre un servicio, una vista previa lo acompaña siguiendo el cursor.
+ * En pantallas táctiles: la imagen se muestra dentro de cada servicio, sin depender del hover.
+ */
+function ServiceIndex() {
+  const fine = useFinePointer()
+  const ok = useMotionOK()
+  const [active, setActive] = useState<string | null>(null)
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const x = useSpring(mx, { stiffness: 180, damping: 24, mass: 0.5 })
+  const y = useSpring(my, { stiffness: 180, damping: 24, mass: 0.5 })
+  const listRef = useRef<HTMLOListElement>(null)
+
+  const onMove = (e: MouseEvent) => {
+    const r = listRef.current?.getBoundingClientRect()
+    if (!r) return
+    mx.set(e.clientX - r.left)
+    my.set(e.clientY - r.top)
+  }
+  const preview = fine && ok
+
+  return (
+    <section aria-label="Detalle de servicios" className="bg-white py-20 sm:py-28 lg:py-32">
+      <div className={wrap}>
+        <ol ref={listRef} onMouseMove={preview ? onMove : undefined} onMouseLeave={() => setActive(null)} className="relative border-t border-graphite/15">
+          {services.map((s, i) => (
+            <li key={s.id} id={s.id} className="scroll-mt-28 border-b border-graphite/15">
+              <Reveal>
+                <article
+                  onMouseEnter={() => setActive(s.id)}
+                  className="group grid gap-6 py-12 sm:py-14 lg:grid-cols-12 lg:gap-10 lg:py-16"
+                >
+                  <span className="font-display text-sm font-bold text-ink-mute transition-colors duration-500 group-hover:text-re lg:col-span-1 lg:pt-4">
+                    0{i + 1}
+                  </span>
+                  <h2 className="font-display text-[clamp(2.3rem,1.3rem+3.8vw,5.2rem)] leading-[0.95] font-extrabold tracking-[-0.045em] text-graphite transition-[color,transform] duration-700 ease-out-soft [font-stretch:112%] group-hover:translate-x-3 group-hover:text-re-700 lg:col-span-6">
+                    {s.title}
+                  </h2>
+                  <div className="lg:col-span-5 lg:pt-4">
+                    <p className="t-lead text-pretty text-ink-soft">{s.description}</p>
+                    <TextLink
+                      href={whatsappUrl(`Hola, Transportes RE. Quisiera consultar por: ${s.title}.`)}
+                      external
+                      className="mt-6 text-re-700"
+                    >
+                      Consultar por este servicio
+                    </TextLink>
+                  </div>
+                  {/* imagen visible siempre en pantallas táctiles / sin hover */}
+                  {!preview ? <ServiceVisual id={s.id} className="aspect-[16/10] w-full lg:col-span-11 lg:col-start-2" /> : null}
+                </article>
+              </Reveal>
+            </li>
+          ))}
+
+          {preview ? (
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute top-0 left-0 z-20 hidden h-[260px] w-[360px] lg:block"
+              style={{ x, y, translateX: '-50%', translateY: '-50%' }}
+            >
+              <AnimatePresence mode="popLayout">
+                {active ? (
+                  <motion.div
+                    key={active}
+                    className="absolute inset-0 overflow-hidden rounded-2xl shadow-[0_30px_60px_-25px_rgb(37_45_58/0.5)]"
+                    initial={{ opacity: 0, scale: 0.85, clipPath: 'inset(50% 0% 50% 0% round 16px)' }}
+                    animate={{ opacity: 1, scale: 1, clipPath: 'inset(0% 0% 0% 0% round 16px)' }}
+                    exit={{ opacity: 0, scale: 0.92 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <ServiceVisual id={active} className="h-full w-full" />
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </motion.div>
+          ) : null}
+        </ol>
+      </div>
+    </section>
+  )
+}
+
+/* Cobertura: los anillos se dibujan con el scroll alrededor de la base en El Talar */
+function Coverage() {
+  const ref = useRef<HTMLDivElement>(null)
+  const ok = useMotionOK()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.9', 'center 0.45'] })
+  const draw = useTransform(scrollYProgress, [0, 1], [0, 1])
+  return (
+    <section aria-labelledby="cobertura-t" className="overflow-hidden bg-mist py-24 sm:py-32 lg:py-40">
+      <div className={`${wrap} grid items-center gap-14 lg:grid-cols-12`}>
+        <div className="lg:col-span-6">
+          <Label>Zona de operación</Label>
+          <RevealLines
+            id="cobertura-t"
+            className="t-mega mt-6 text-graphite"
+            lines={['Buenos Aires', <span className="t-accent text-re">y AMBA.</span>]}
           />
+          <Reveal delay={150}>
+            <p className="t-lead mt-8 max-w-md text-ink-soft">
+              Operamos en {company.area}. Nuestra base está en El Talar, donde empezó la historia en {company.foundedYear}.
+            </p>
+          </Reveal>
         </div>
-      )
-    case 'cobertura':
-      return (
-        <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-2xl bg-mist">
-          {/* Composición abstracta (no es un mapa): base El Talar y alcance BA / AMBA */}
-          <svg aria-hidden viewBox="0 0 400 300" className="absolute inset-0 h-full w-full">
-            {[44, 88, 132, 176].map((r, i) => (
-              <circle
+        <div ref={ref} className="relative mx-auto aspect-square w-full max-w-[520px] lg:col-span-6" aria-hidden>
+          <svg viewBox="0 0 400 400" className="h-full w-full">
+            {[60, 110, 160, 196].map((r, i) => (
+              <motion.circle
                 key={r}
                 cx="200"
-                cy="150"
+                cy="200"
                 r={r}
                 fill="none"
                 stroke="var(--color-re)"
-                strokeOpacity={0.5 - i * 0.1}
-                strokeDasharray={i === 3 ? '3 6' : undefined}
+                strokeWidth={i === 0 ? 1.5 : 1}
+                strokeOpacity={0.75 - i * 0.15}
+                strokeDasharray={i === 3 ? '3 7' : undefined}
+                style={ok && i !== 3 ? { pathLength: draw, rotate: -90 } : undefined}
               />
             ))}
-            <circle cx="200" cy="150" r="7" fill="var(--color-re)" />
-            <circle cx="200" cy="150" r="16" fill="var(--color-re)" fillOpacity=".15" />
+            <circle cx="200" cy="200" r="22" fill="var(--color-re)" fillOpacity=".14" />
+            <circle cx="200" cy="200" r="8" fill="var(--color-re)" />
           </svg>
-          <div className="relative mt-24 rounded-xl bg-white/90 px-4 py-2.5 text-center shadow-sm backdrop-blur">
-            <p className="text-xs tracking-[0.14em] text-ink-mute uppercase">Base</p>
-            <p className="font-display font-bold text-graphite">El Talar</p>
-          </div>
-          <p className="absolute top-5 left-5 font-display text-sm font-bold tracking-[0.12em] text-re-700 uppercase">
-            Buenos Aires · AMBA
-          </p>
-        </div>
-      )
-    case 'atencion':
-      return (
-        <div className="flex aspect-[4/3] w-full flex-col justify-between rounded-2xl bg-graphite p-8 text-white sm:p-10">
-          <Icon name="people" size={32} className="text-re" />
-          <div>
-            <p className="font-display text-[1.6rem] leading-tight font-bold tracking-[-0.02em] text-balance sm:text-3xl">
-              “Hablás directamente con la empresa.”
-            </p>
-            <p className="mt-5 flex items-center gap-2 text-sm text-white/70">
-              <Icon name="clock" size={16} /> {contact.hours}
-            </p>
+          <div className="absolute top-1/2 left-1/2 mt-12 -translate-x-1/2 rounded-full bg-white px-4 py-2 text-sm font-bold text-graphite shadow-sm">
+            El Talar
           </div>
         </div>
-      )
-    default:
-      return null
-  }
+      </div>
+    </section>
+  )
+}
+
+function Fleet() {
+  return (
+    <section aria-labelledby="flota" className="bg-smoke py-24 sm:py-32">
+      <div className={`${wrap} grid gap-12 lg:grid-cols-12`}>
+        <div className="lg:col-span-5">
+          <Label>Nuestra flota</Label>
+          <RevealLines id="flota" className="t-h2 mt-6 text-graphite" lines={['Camiones propios,', 'en operación activa.']} />
+          <Reveal delay={120}>
+            <p className="mt-6 max-w-md leading-relaxed text-ink-soft">
+              Contamos con flota propia de distintos modelos. Próximamente vas a encontrar acá el detalle de los tipos de
+              vehículos con los que trabajamos.
+            </p>
+            <div className="mt-8">
+              <WhatsAppButton message={whatsappMessages.services} variant="secondary">
+                Consultar disponibilidad
+              </WhatsAppButton>
+            </div>
+          </Reveal>
+        </div>
+        <div className="lg:col-span-7">
+          {fleetDetails.length > 0 ? (
+            <ul className="grid gap-5 sm:grid-cols-2">
+              {fleetDetails.map((f) => (
+                <li key={f.title} className="rounded-2xl border border-line bg-white p-6">
+                  {f.image ? <img src={f.image} alt={f.title} loading="lazy" className="mb-5 rounded-xl" /> : null}
+                  <h3 className="t-h3 text-graphite">{f.title}</h3>
+                  <p className="mt-2 text-ink-soft">{f.detail}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Reveal className="space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <PhotoPlaceholder label="Tipo de carrocería 1" className="aspect-[4/3]" />
+                <PhotoPlaceholder label="Tipo de carrocería 2" className="aspect-[4/3]" />
+              </div>
+              <PendingNote>
+                Confirmar con la empresa: cantidad de camiones, tipos de carrocería (caja, playo, etc.) y características
+                que quieran destacar. La estructura está lista en <code>src/data/services.ts</code> (<code>fleetDetails</code>).
+              </PendingNote>
+            </Reveal>
+          )}
+        </div>
+      </div>
+      <div className={`${wrap} mt-20`}>
+        <Reveal variant="fade" className="flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="t-label text-ink-soft">¿Tenés más preguntas?</p>
+          <TextLink to="/preguntas-frecuentes" className="text-re-700">
+            Ver preguntas frecuentes
+          </TextLink>
+        </Reveal>
+      </div>
+    </section>
+  )
 }
 
 export function Servicios() {
@@ -84,128 +213,39 @@ export function Servicios() {
     'Servicios',
     'Transporte de cargas generales con flota propia en Buenos Aires y AMBA. Atención personalizada y directa. Transportes RE S.R.L., desde 1960.',
   )
-
   return (
     <>
       <PageHero
-        eyebrow="Servicios"
-        title="Transporte de cargas generales, con flota propia."
+        label="Servicios"
+        lines={['Cargas generales,', <>con <span className="t-accent text-re">flota propia.</span></>]}
         lead={`Trabajamos en ${company.area} desde El Talar, con camiones propios y el trato directo de una empresa familiar.`}
         aside={
-          <ul className="space-y-3 lg:pb-2">
-            {services.map((s) => (
-              <li key={s.id}>
-                <a
-                  href={`#${s.id}`}
-                  className="group flex items-center justify-between gap-4 border-b border-fog py-3 text-graphite transition-colors hover:text-re-700"
-                >
-                  <span className="flex items-center gap-3 font-medium">
-                    <Icon name={s.icon} size={20} className="text-re" />
-                    {s.title}
+          <ol className="border-t border-fog">
+            {services.map((s, i) => (
+              <li key={s.id} className="border-b border-fog">
+                <a href={`#${s.id}`} className="group flex items-center justify-between gap-4 py-3.5 text-graphite">
+                  <span className="flex items-center gap-4 text-[0.95rem] font-medium">
+                    <span className="text-xs font-bold text-ink-mute">0{i + 1}</span>
+                    <span className="link-u">{s.title}</span>
                   </span>
-                  <Icon name="arrowRight" size={16} className="rotate-90 text-ink-mute transition-transform group-hover:translate-y-0.5" />
+                  <Icon name="arrowRight" size={16} className="rotate-90 text-re transition-transform duration-500 group-hover:translate-y-1" />
                 </a>
               </li>
             ))}
-          </ul>
+          </ol>
         }
       />
-
-      {/* ───────────── DETALLE DE SERVICIOS ───────────── */}
-      <section className="bg-white py-8 sm:py-12 lg:py-16" aria-label="Detalle de servicios">
-        <Container>
-          {services.map((s, i) => (
-            <article
-              key={s.id}
-              id={s.id}
-              className="grid scroll-mt-28 items-center gap-10 border-b border-line py-14 last:border-b-0 sm:py-16 lg:grid-cols-12 lg:gap-16 lg:py-20"
-            >
-              <Reveal className={`lg:col-span-6 ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
-                <ServiceVisual id={s.id} />
-              </Reveal>
-              <Reveal delay={100} className={`lg:col-span-5 ${i % 2 === 1 ? 'lg:order-1 lg:col-start-1' : 'lg:col-start-8'}`}>
-                <div className="flex items-center gap-4">
-                  <span className="flex size-12 items-center justify-center rounded-xl bg-mist text-re">
-                    <Icon name={s.icon} size={24} />
-                  </span>
-                  <span className="font-display text-sm font-bold text-ink-mute">0{i + 1}</span>
-                </div>
-                <h2 className="t-h2 mt-7 text-balance text-graphite">{s.title}</h2>
-                <p className="t-lead mt-5 text-pretty text-ink-soft">{s.description}</p>
-              </Reveal>
-            </article>
-          ))}
-        </Container>
-      </section>
-
-      {/* ───────────── CTA INTERMEDIO ───────────── */}
+      <ServiceIndex />
+      {/* CTA después de Servicios */}
       <CtaBand
-        title="¿Necesitás mover una carga?"
+        tone="blue"
+        label="Presupuestos"
+        lines={['¿Necesitás', <>mover <span className="t-accent">una carga?</span></>]}
         text="Contanos el tipo de carga, origen, destino y fecha estimada. Te respondemos por WhatsApp."
         message={whatsappMessages.quote}
-        tone="blue"
-        background="white"
       />
-
-      {/* ───────────── FLOTA: estructura preparada ───────────── */}
-      <Section tone="smoke" labelledBy="flota">
-        <Container>
-          <div className="grid gap-12 lg:grid-cols-12">
-            <Reveal className="lg:col-span-5">
-              <SectionHeading
-                id="flota"
-                eyebrow="Nuestra flota"
-                title="Camiones propios, en operación activa."
-                lead="Contamos con flota propia de distintos modelos. Próximamente vas a encontrar acá el detalle de los tipos de vehículos con los que trabajamos."
-              />
-              <div className="mt-8">
-                <WhatsAppButton message={whatsappMessages.services} variant="secondary">
-                  Consultar disponibilidad
-                </WhatsAppButton>
-              </div>
-            </Reveal>
-
-            <div className="lg:col-span-7">
-              {fleetDetails.length > 0 ? (
-                <ul className="grid gap-5 sm:grid-cols-2">
-                  {fleetDetails.map((f) => (
-                    <li key={f.title} className="rounded-2xl border border-line bg-white p-6">
-                      {f.image ? <img src={f.image} alt={f.title} loading="lazy" className="mb-5 rounded-xl" /> : null}
-                      <h3 className="t-h3 text-graphite">{f.title}</h3>
-                      <p className="mt-2 text-ink-soft">{f.detail}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <Reveal className="space-y-5">
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <PhotoPlaceholder label="Tipo de carrocería 1" className="aspect-[4/3]" />
-                    <PhotoPlaceholder label="Tipo de carrocería 2" className="aspect-[4/3]" />
-                  </div>
-                  <PendingNote>
-                    Confirmar con la empresa: cantidad de camiones, tipos de carrocería (caja, playo, etc.) y
-                    características que quieran destacar. La estructura está lista en <code>src/data/services.ts</code>{' '}
-                    (<code>fleetDetails</code>).
-                  </PendingNote>
-                </Reveal>
-              )}
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* Etiqueta de cierre */}
-      <section className="bg-smoke pb-20 lg:pb-28">
-        <Container>
-          <Reveal className="flex flex-col gap-6 border-t border-line pt-10 sm:flex-row sm:items-center sm:justify-between">
-            <Eyebrow>¿Tenés más preguntas?</Eyebrow>
-            <Link to="/preguntas-frecuentes" className="group inline-flex items-center gap-2 font-semibold text-re-700">
-              Ver preguntas frecuentes
-              <Icon name="arrowRight" size={17} className="transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </Reveal>
-        </Container>
-      </section>
+      <Coverage />
+      <Fleet />
     </>
   )
 }

@@ -5,9 +5,10 @@ import tailwindcss from '@tailwindcss/vite'
 /**
  * GitHub Pages publica el sitio en https://bautiwebs-spec.github.io/Transportes/
  * por eso la build usa la base "/Transportes/". En desarrollo local se mantiene "/".
- * Si el repositorio cambia de nombre, actualizar REPO_BASE.
+ * La preview de una versión en evaluación se compila con BASE_PATH (ej.: /Transportes/v2/).
  */
-const REPO_BASE = '/Transportes/'
+declare const process: { env: Record<string, string | undefined> }
+const REPO_BASE = process.env.BASE_PATH || '/Transportes/'
 
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? REPO_BASE : '/',

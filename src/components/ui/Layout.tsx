@@ -36,7 +36,7 @@ export function Section({
 
 export function Eyebrow({ children, light = false, className = '' }: { children: ReactNode; light?: boolean; className?: string }) {
   return (
-    <p className={`t-eyebrow flex items-center gap-3 ${light ? 'text-white/70' : 'text-ink-soft'} ${className}`}>
+    <p className={`t-label flex items-center gap-3 ${light ? 'text-white/70' : 'text-ink-soft'} ${className}`}>
       <AxleMark className={light ? 'text-re' : 'text-re'} />
       {children}
     </p>

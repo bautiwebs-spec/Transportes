@@ -1,37 +1,50 @@
 import type { ReactNode } from 'react'
-import { Container, Eyebrow } from '../ui/Layout'
-import { Reveal } from '../ui/Reveal'
+import { Label } from '../ui/Label'
 
-/** Encabezado de páginas internas. Fondo gris azulado suave, nunca oscuro. */
+/**
+ * Encabezado de páginas internas: título grande revelado por líneas en la entrada
+ * (misma secuencia CSS que el hero del Inicio) y una columna lateral opcional.
+ */
 export function PageHero({
-  eyebrow,
-  title,
+  label,
+  lines,
   lead,
   aside,
-  className = '',
+  children,
 }: {
-  eyebrow: ReactNode
-  title: ReactNode
+  label: string
+  lines: ReactNode[]
   lead?: ReactNode
   aside?: ReactNode
-  className?: string
+  children?: ReactNode
 }) {
   return (
-    <section className={`relative overflow-hidden bg-mist pt-[calc(76px+3.5rem)] pb-16 sm:pb-20 lg:pt-[calc(88px+5rem)] lg:pb-24 ${className}`}>
-      <Container className="relative">
-        <div className="grid items-end gap-10 lg:grid-cols-12">
-          <Reveal className="lg:col-span-7">
-            <Eyebrow>{eyebrow}</Eyebrow>
-            <h1 className="t-display mt-6 text-balance text-graphite">{title}</h1>
-            {lead ? <p className="t-lead mt-7 max-w-2xl text-pretty text-ink-soft">{lead}</p> : null}
-          </Reveal>
+    <section className="relative overflow-hidden bg-mist pt-[120px] pb-16 sm:pb-20 lg:pt-[170px] lg:pb-24">
+      <div className="mx-auto w-full max-w-[1320px] px-5 sm:px-8 lg:px-10">
+        <div className="enter-fade" style={{ '--i': -8 } as React.CSSProperties}>
+          <Label>{label}</Label>
+        </div>
+        <div className="mt-8 grid items-end gap-10 lg:grid-cols-12">
+          <h1 className="t-display text-graphite lg:col-span-8">
+            {lines.map((l, i) => (
+              <span key={i} className="enter-line block overflow-hidden pb-[0.08em]" style={{ '--i': i } as React.CSSProperties}>
+                <span>{l}</span>
+              </span>
+            ))}
+          </h1>
           {aside ? (
-            <Reveal delay={120} className="lg:col-span-5">
+            <div className="enter-fade lg:col-span-4" style={{ '--i': 1 } as React.CSSProperties}>
               {aside}
-            </Reveal>
+            </div>
           ) : null}
         </div>
-      </Container>
+        {lead ? (
+          <p className="enter-fade t-lead mt-10 max-w-2xl text-pretty text-ink-soft" style={{ '--i': 0 } as React.CSSProperties}>
+            {lead}
+          </p>
+        ) : null}
+        {children}
+      </div>
     </section>
   )
 }

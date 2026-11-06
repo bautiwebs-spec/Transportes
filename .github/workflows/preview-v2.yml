@@ -1,0 +1,59 @@
+name: Preview V2 (/v2/)
+
+# Publica la propuesta V2 en https://bautiwebs-spec.github.io/Transportes/v2/
+# sin reemplazar la web principal: compila main (raíz, sin cambios) + redesign-v2 (/v2/)
+# y despliega ambos juntos en GitHub Pages.
+on:
+  push:
+    branches: [redesign-v2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Código de la web principal (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: stable
+      - name: Código de la propuesta (redesign-v2)
+        uses: actions/checkout@v4
+        with:
+          path: v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Compilar web principal
+        working-directory: stable
+        run: npm ci && npm run build
+      - name: Compilar V2 en /Transportes/v2/
+        working-directory: v2
+        env:
+          BASE_PATH: /Transportes/v2/
+        run: npm ci && npm run build
+      - name: Unir ambas versiones
+        run: mkdir -p stable/dist/v2 && cp -r v2/dist/. stable/dist/v2/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: stable/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
