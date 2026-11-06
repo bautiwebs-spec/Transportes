@@ -1,0 +1,147 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   Identidad visual — Transportes RE S.R.L.
+   Paleta construida alrededor del logo oficial.
+------------------------------------------------------------------- */
+@theme {
+  /* Azul RE: #087FC9 para acentos, íconos y tipografía grande.
+     re-600 / re-700: variantes más profundas para botones con texto blanco
+     (contraste AA). */
+  --color-re: #087fc9;
+  --color-re-600: #0773b8;
+  --color-re-700: #0866a3;
+  --color-re-50: #e6f2fa;
+
+  --color-graphite: #252d3a;
+  --color-graphite-900: #1b222c;
+  --color-ink: #252d3a;
+  --color-ink-soft: #4f5b6b;
+  --color-ink-mute: #6b7685;
+
+  --color-mist: #e9eff4; /* gris azulado */
+  --color-fog: #d3e0ea; /* azul niebla */
+  --color-smoke: #f6f8fa; /* blanco humo */
+  --color-line: #dbe3ea;
+
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Manrope Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-re);
+    color: white;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-re);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@layer components {
+  /* Jerarquía tipográfica */
+  .t-display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+    font-size: clamp(2.6rem, 1.6rem + 4.2vw, 5.1rem);
+  }
+  .t-h2 {
+    font-family: var(--font-display);
+    font-weight: 750;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    font-size: clamp(2rem, 1.45rem + 2.2vw, 3.25rem);
+  }
+  .t-h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    font-size: clamp(1.2rem, 1.1rem + 0.4vw, 1.45rem);
+  }
+  .t-lead {
+    font-size: clamp(1.075rem, 1rem + 0.35vw, 1.25rem);
+    line-height: 1.6;
+  }
+  .t-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  /* Numeral contorneado: recurso visual para "1960" */
+  .numeral-outline {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 0.85;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--color-re);
+  }
+
+  /* Foto de archivo: tratamiento editorial (no modifica el archivo original) */
+  .archive-photo {
+    filter: grayscale(1) contrast(1.08) brightness(1.02);
+  }
+
+  /* Placeholder rayado para fotos pendientes */
+  .placeholder-hatch {
+    background-color: var(--color-mist);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent 0 14px,
+      rgb(8 127 201 / 0.07) 14px 15px
+    );
+  }
+}
+
+/* Aparición discreta al hacer scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s var(--ease-out-soft),
+    transform 0.7s var(--ease-out-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal[data-visible='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
