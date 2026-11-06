@@ -57,7 +57,19 @@ o cambiar el import en la página correspondiente.
 - Hitos históricos intermedios → `src/data/history.ts`.
 - Antes de publicar: `SHOW_PENDING_NOTES = false` en `src/config.ts`.
 
-## Publicación
+## Publicación (GitHub Pages)
 
-Es una SPA con rutas reales (`/historia`, `/servicios`, …). El hosting debe redirigir
-todas las rutas a `index.html` (Netlify, Vercel y Cloudflare Pages lo resuelven con una regla de rewrite).
+- URL pública: https://bautiwebs-spec.github.io/Transportes/
+- Se publica automáticamente con GitHub Actions (`.github/workflows/deploy.yml`) cada vez que se actualiza la rama `main`.
+  También se puede lanzar a mano desde la pestaña **Actions → Publicar en GitHub Pages → Run workflow**.
+- La build usa la base `/Transportes/` (`vite.config.ts`). En desarrollo local sigue siendo `http://localhost:5173/`.
+- Compatibilidad con React Router: `scripts/pages-fallback.mjs` copia `index.html` en una carpeta por ruta
+  y como `404.html`, así cada página funciona al abrirla directamente o al recargar.
+  Si se agrega una página nueva, sumarla también a la lista de ese script.
+
+### Flujo de versiones
+
+1. Cada cambio se trabaja en una rama y se confirma con Git (la versión anterior queda en el historial).
+2. Se verifica la build (`npm run build`) y las páginas.
+3. Al llevarlo a `main`, GitHub Actions publica la nueva versión en la misma URL.
+4. Para volver atrás: revertir el commit en `main` (`git revert`), y se republica sola.
