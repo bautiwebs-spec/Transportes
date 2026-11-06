@@ -3,61 +3,36 @@ import { Link } from 'react-router-dom'
 import { Icon, type IconName } from './Icon'
 import { whatsappUrl } from '../../lib/whatsapp'
 
-type Variant = 'primary' | 'secondary' | 'light' | 'outline-light' | 'dark'
+type Variant = 'primary' | 'secondary' | 'light' | 'outline-light'
 type Size = 'sm' | 'md' | 'lg'
 
 /*
-  Sistema de botones V2
-  - Al pasar el cursor (o con foco de teclado) un relleno sube desde abajo y cambia el contraste.
-  - La flecha sale por la derecha y vuelve a entrar por la izquierda.
+  Botones V3: cambio de color y contraste al pasar el cursor, y una flecha que
+  avanza 3 px. Sin rellenos animados ni efectos llamativos.
 */
 const base =
-  'group/btn relative isolate inline-flex items-center justify-center gap-2.5 overflow-hidden rounded-full font-semibold whitespace-nowrap transition-[color,border-color,transform] duration-500 ease-out-soft active:scale-[0.98] disabled:opacity-60'
+  'group/btn inline-flex items-center justify-center gap-2.5 rounded-full font-semibold whitespace-nowrap transition-[background-color,color,border-color] duration-300 ease-out-soft'
 
-const variants: Record<Variant, { cls: string; fill: string }> = {
-  primary: {
-    cls: 'bg-re-600 text-white hover:text-white focus-visible:text-white',
-    fill: 'bg-graphite',
-  },
-  dark: {
-    cls: 'bg-graphite text-white',
-    fill: 'bg-re-600',
-  },
-  secondary: {
-    cls: 'border border-graphite/20 bg-transparent text-graphite hover:text-white focus-visible:text-white hover:border-graphite',
-    fill: 'bg-graphite',
-  },
-  light: {
-    cls: 'bg-white text-re-700 hover:text-white focus-visible:text-white',
-    fill: 'bg-graphite',
-  },
-  'outline-light': {
-    cls: 'border border-white/35 text-white hover:text-graphite focus-visible:text-graphite hover:border-white',
-    fill: 'bg-white',
-  },
+const variants: Record<Variant, string> = {
+  primary: 'bg-re-600 text-white hover:bg-re-700',
+  secondary: 'border border-graphite/20 bg-white text-graphite hover:border-graphite/60',
+  light: 'bg-white text-graphite hover:bg-mist',
+  'outline-light': 'border border-white/30 text-white hover:border-white/70 hover:bg-white/5',
 }
 
 const sizes: Record<Size, string> = {
   sm: 'h-10 px-4 text-sm',
   md: 'h-12 px-6 text-[0.95rem]',
-  lg: 'h-14 px-7 text-base',
+  lg: 'h-[3.25rem] px-7 text-[0.98rem]',
 }
 
-/** Flecha que se desplaza: sale por la derecha y vuelve a entrar. */
-export function ArrowSwap({ size = 17, name = 'arrowRight' }: { size?: number; name?: IconName }) {
+export function Arrow({ name = 'arrowRight', size = 16 }: { name?: IconName; size?: number }) {
   return (
-    <span className="relative inline-flex overflow-hidden" aria-hidden>
-      <Icon
-        name={name}
-        size={size}
-        className="transition-transform duration-500 ease-out-soft group-hover/btn:translate-x-[150%] group-focus-visible/btn:translate-x-[150%] group-hover/link:translate-x-[150%]"
-      />
-      <Icon
-        name={name}
-        size={size}
-        className="absolute inset-0 -translate-x-[150%] transition-transform duration-500 ease-out-soft group-hover/btn:translate-x-0 group-focus-visible/btn:translate-x-0 group-hover/link:translate-x-0"
-      />
-    </span>
+    <Icon
+      name={name}
+      size={size}
+      className="transition-transform duration-300 ease-out-soft group-hover/btn:translate-x-[3px] group-hover/link:translate-x-[3px] group-focus-visible/btn:translate-x-[3px]"
+    />
   )
 }
 
@@ -66,41 +41,30 @@ type CommonProps = {
   variant?: Variant
   size?: Size
   icon?: IconName
-  arrow?: boolean | IconName
+  arrow?: boolean
   className?: string
 }
-
 type Props = CommonProps & ({ to: string; href?: never } | { href: string; to?: never; external?: boolean })
 
 export function Button(props: Props) {
   const { children, variant = 'primary', size = 'md', icon, arrow, className = '' } = props
-  const v = variants[variant]
-  const cls = `${base} ${v.cls} ${sizes[size]} ${className}`
+  const cls = `${base} ${variants[variant]} ${sizes[size]} ${className}`
   const content = (
     <>
-      <span
-        aria-hidden
-        className={`absolute inset-0 -z-10 translate-y-[101%] rounded-full ${v.fill} transition-transform duration-500 ease-out-soft group-hover/btn:translate-y-0 group-focus-visible/btn:translate-y-0`}
-      />
-      {icon ? <Icon name={icon} size={size === 'sm' ? 16 : 19} /> : null}
+      {icon ? <Icon name={icon} size={size === 'sm' ? 16 : 18} /> : null}
       <span>{children}</span>
-      {arrow ? <ArrowSwap size={size === 'sm' ? 15 : 17} name={arrow === true ? 'arrowRight' : arrow} /> : null}
+      {arrow ? <Arrow /> : null}
     </>
   )
-  if ('to' in props && props.to) {
+  if ('to' in props && props.to)
     return (
       <Link to={props.to} className={cls}>
         {content}
       </Link>
     )
-  }
   const external = 'external' in props && props.external
   return (
-    <a
-      href={(props as { href: string }).href}
-      className={cls}
-      {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-    >
+    <a href={(props as { href: string }).href} className={cls} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
       {content}
     </a>
   )
@@ -113,17 +77,15 @@ export function WhatsAppButton({
   variant = 'primary',
   size = 'md',
   className,
-  arrow = true,
 }: {
   message?: string
   children?: ReactNode
   variant?: Variant
   size?: Size
   className?: string
-  arrow?: boolean
 }) {
   return (
-    <Button href={whatsappUrl(message)} external icon="whatsapp" variant={variant} size={size} className={className} arrow={arrow}>
+    <Button href={whatsappUrl(message)} external icon="whatsapp" variant={variant} size={size} className={className}>
       {children}
     </Button>
   )
@@ -147,16 +109,14 @@ export function TextLink({
   const inner = (
     <>
       <span className="link-u">{children}</span>
-      <ArrowSwap size={16} name={external ? 'arrowUpRight' : 'arrowRight'} />
+      <Arrow name={external ? 'arrowUpRight' : 'arrowRight'} size={15} />
     </>
   )
-  if (to)
-    return (
-      <Link to={to} className={cls}>
-        {inner}
-      </Link>
-    )
-  return (
+  return to ? (
+    <Link to={to} className={cls}>
+      {inner}
+    </Link>
+  ) : (
     <a href={href} className={cls} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
       {inner}
     </a>

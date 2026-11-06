@@ -3,19 +3,19 @@ import { navItems } from '../../data/navigation'
 import { company, contact, fullAddress, whatsappMessages } from '../../data/company'
 import { whatsappUrl } from '../../lib/whatsapp'
 import { Icon } from '../ui/Icon'
+import { wrap } from '../ui/Label'
 import { Logo } from './Logo'
-import { Parallax } from '../motion/Scroll'
 
 export function Footer() {
   const year = new Date().getFullYear()
   return (
-    <footer className="relative overflow-hidden border-t border-line bg-smoke">
-      <div className="mx-auto max-w-[1320px] px-5 pt-16 sm:px-8 lg:px-10 lg:pt-24">
+    <footer className="border-t border-line bg-smoke">
+      <div className={`${wrap} py-16 lg:py-20`}>
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-4">
-            <Logo className="h-14" />
+            <Logo className="h-12" />
             <p className="mt-6 max-w-xs text-[0.95rem] leading-relaxed text-ink-soft">
-              {company.activity} en {company.area}. Empresa familiar desde {company.foundedYear}.
+              {company.activity} en {company.area}. Empresa familiar con base en El Talar.
             </p>
           </div>
 
@@ -79,21 +79,9 @@ export function Footer() {
           <p>
             © {year} {company.name} · Todos los derechos reservados.
           </p>
-          <p>
-            {contact.address.town}, {contact.address.province}
-          </p>
+          <p>Desde {company.foundedYear} · El Talar, Buenos Aires</p>
         </div>
       </div>
-
-      {/* Cierre tipográfico: la marca "desde 1960" asoma desde el borde inferior */}
-      <Parallax amount={30} className="pointer-events-none mt-10 select-none" >
-        <p
-          aria-hidden
-          className="-mb-[0.22em] text-center font-display text-[clamp(4.5rem,17vw,16rem)] leading-none font-extrabold tracking-[-0.06em] whitespace-nowrap text-fog [font-stretch:118%]"
-        >
-          desde <span className="t-accent text-re/25">1960</span>
-        </p>
-      </Parallax>
     </footer>
   )
 }

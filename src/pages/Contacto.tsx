@@ -1,58 +1,34 @@
-import type { CSSProperties } from 'react'
 import { contact, fullAddress, whatsappMessages } from '../data/company'
 import { usePageMeta } from '../hooks/usePageMeta'
-import { whatsappUrl } from '../lib/whatsapp'
 import { SHOW_PENDING_NOTES } from '../config'
 import { Icon, type IconName } from '../components/ui/Icon'
-import { Label } from '../components/ui/Label'
+import { Label, wrap } from '../components/ui/Label'
 import { PendingBadge } from '../components/ui/Pending'
-import { ArrowSwap, TextLink } from '../components/ui/Button'
-import { Reveal, RevealLines } from '../components/motion/Reveal'
+import { TextLink, WhatsAppButton } from '../components/ui/Button'
+import { PageHero } from '../components/sections/PageHero'
 import { ContactForm } from '../components/forms/ContactForm'
 
-const wrap = 'mx-auto w-full max-w-[1320px] px-5 sm:px-8 lg:px-10'
-
-function Channel({
-  icon,
-  label,
-  value,
-  href,
-  external,
-  badge,
-}: {
-  icon: IconName
-  label: string
-  value: string
-  href?: string
-  external?: boolean
-  badge?: string
-}) {
-  const inner = (
+function Channel({ icon, label, value, href, badge }: { icon: IconName; label: string; value: string; href?: string; badge?: string }) {
+  const body = (
     <>
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-mist text-re transition-colors duration-500 group-hover/btn:bg-re-600 group-hover/btn:text-white group-focus-visible/btn:bg-re-600 group-focus-visible/btn:text-white">
-        <Icon name={icon} size={19} />
-      </span>
-      <span className="min-w-0 flex-1">
+      <Icon name={icon} size={20} className="mt-0.5 shrink-0 text-re" />
+      <span className="min-w-0">
         <span className="flex flex-wrap items-center gap-2 text-sm text-ink-mute">
           {label}
           {badge ? <PendingBadge>{badge}</PendingBadge> : null}
         </span>
-        <span className="mt-0.5 block font-semibold break-words text-graphite">{value}</span>
-      </span>
-      {href ? (
-        <span className="text-graphite">
-          <ArrowSwap name={external ? 'arrowUpRight' : 'arrowRight'} />
+        <span className="mt-1 block font-medium break-words text-graphite">
+          {href ? <span className="link-u">{value}</span> : value}
         </span>
-      ) : null}
+      </span>
     </>
   )
-  const cls = 'group/btn flex items-center gap-4 border-b border-graphite/12 py-5 transition-[padding] duration-500 ease-out-soft'
   return href ? (
-    <a href={href} className={`${cls} hover:pl-2 focus-visible:pl-2`} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
-      {inner}
+    <a href={href} className="flex gap-4 py-5">
+      {body}
     </a>
   ) : (
-    <div className={cls}>{inner}</div>
+    <div className="flex gap-4 py-5">{body}</div>
   )
 }
 
@@ -61,56 +37,37 @@ export function Contacto() {
     'Contacto',
     'Contactá a Transportes RE S.R.L. por WhatsApp o teléfono al 011 2155-3296. Paraguay 1330, El Talar, Buenos Aires. Lunes a viernes de 9 a 18 h.',
   )
-  const line = (i: number) => ({ '--i': i }) as CSSProperties
 
   return (
     <>
-      {/* Hero: el número de WhatsApp es la acción principal, en tipografía grande */}
-      <section className="relative overflow-hidden bg-mist pt-[120px] pb-16 lg:pt-[170px] lg:pb-24">
-        <div className={wrap}>
-          <div className="enter-fade" style={line(-8)}>
-            <Label>Contacto</Label>
-          </div>
-          <h1 className="t-mega mt-8 text-graphite">
-            <span className="enter-line block overflow-hidden pb-[0.1em]" style={line(0)}>
-              <span>
-                Hablemos<span className="t-accent text-re">.</span>
-              </span>
-            </span>
-          </h1>
-          <div className="enter-fade mt-10 grid gap-8 border-t border-fog pt-10 lg:grid-cols-12 lg:items-end" style={line(1)}>
-            <p className="t-lead max-w-md text-pretty text-ink-soft lg:col-span-5">
-              Para presupuestos y solicitudes de transporte, WhatsApp es la forma más rápida. Para consultas generales,
-              también podés usar el formulario o el correo.
-            </p>
-            <a
-              href={whatsappUrl(whatsappMessages.quote)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group/btn lg:col-span-7 lg:justify-self-end"
-            >
-              <span className="t-label flex items-center gap-2 text-re-700">
-                <Icon name="whatsapp" size={16} /> Escribinos por WhatsApp
-              </span>
-              <span className="mt-2 flex items-center gap-4 whitespace-nowrap font-display text-[clamp(1.9rem,0.9rem+4vw,4.4rem)] leading-none font-extrabold tracking-[-0.045em] text-graphite [font-stretch:112%]">
-                <span className="link-u transition-colors duration-500 group-hover/btn:text-re-700">{contact.phoneDisplay}</span>
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-re-600 text-white transition-colors duration-500 group-hover/btn:bg-graphite sm:size-16">
-                  <ArrowSwap size={24} name="arrowUpRight" />
-                </span>
-              </span>
-            </a>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        label="Contacto"
+        title="Hablemos."
+        lead="Para presupuestos y solicitudes de transporte, WhatsApp es la forma más rápida. También podés llamarnos o escribirnos por correo."
+      />
 
-      {/* Canales + formulario */}
-      <section aria-label="Canales y formulario" className="bg-smoke py-20 sm:py-28 lg:py-32">
-        <div className={`${wrap} grid gap-14 lg:grid-cols-12 lg:gap-16`}>
-          <div className="lg:col-span-5">
-            <Reveal>
-              <h2 className="t-h3 text-graphite">Canales de contacto</h2>
-              <div className="mt-6 border-t border-graphite/12">
-                <Channel icon="whatsapp" label="WhatsApp" value={contact.phoneDisplay} href={whatsappUrl(whatsappMessages.general)} external />
+      {/* Canales: WhatsApp primero */}
+      <section aria-label="Canales de contacto" className="bg-white py-20 sm:py-24">
+        <div className={`${wrap} grid gap-10 lg:grid-cols-12 lg:gap-14`}>
+          <div className="lg:col-span-7">
+            <div className="rounded-2xl bg-graphite p-8 text-white sm:p-10">
+              <p className="t-label flex items-center gap-2 text-white/60">
+                <Icon name="whatsapp" size={15} className="text-re" /> Canal principal
+              </p>
+              <h2 className="t-h2 mt-5">Presupuestos por WhatsApp</h2>
+              <p className="mt-4 max-w-md leading-relaxed text-white/70">
+                Contanos el tipo de carga, el origen, el destino y la fecha estimada. Te responde la propia empresa.
+              </p>
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+                <WhatsAppButton message={whatsappMessages.quote} size="lg">
+                  Escribir por WhatsApp
+                </WhatsAppButton>
+                <span className="font-display text-xl font-semibold tracking-[-0.01em] text-white/90">{contact.phoneDisplay}</span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid divide-y divide-line border-y border-line sm:grid-cols-2 sm:divide-y-0">
+              <div className="divide-y divide-line sm:pr-6">
                 <Channel icon="phone" label="Teléfono" value={contact.phoneDisplay} href={`tel:${contact.phoneTel}`} />
                 <Channel
                   icon="mail"
@@ -119,76 +76,58 @@ export function Contacto() {
                   href={`mailto:${contact.email}`}
                   badge={contact.emailIsProvisional ? 'Provisorio' : undefined}
                 />
+              </div>
+              <div className="divide-y divide-line sm:border-l sm:border-line sm:pl-6">
+                <Channel icon="clock" label="Horario de atención" value={contact.hours} />
                 {contact.instagram ? (
-                  <Channel icon="instagram" label="Instagram" value={`@${contact.instagram.user}`} href={contact.instagram.url} external />
+                  <Channel icon="instagram" label="Instagram" value={`@${contact.instagram.user}`} href={contact.instagram.url} />
                 ) : SHOW_PENDING_NOTES ? (
                   <Channel icon="instagram" label="Instagram" value="Usuario a confirmar" badge="Pendiente" />
                 ) : null}
-                <Channel icon="clock" label="Horario de atención" value={contact.hours} />
               </div>
-            </Reveal>
+            </div>
           </div>
 
-          <Reveal delay={120} className="lg:col-span-7">
-            <div className="rounded-[1.75rem] border border-line bg-white p-6 shadow-[0_40px_80px_-60px_rgb(37_45_58/0.5)] sm:p-10">
-              <Label>Formulario de consulta</Label>
-              <h2 className="t-h2 mt-5 text-graphite">
-                Dejanos tu <span className="t-accent text-re">mensaje.</span>
-              </h2>
-              <p className="mt-3 mb-9 text-ink-soft">Para consultas generales. Te respondemos por correo.</p>
-              <ContactForm />
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Ubicación */}
-      <section aria-labelledby="ubicacion" className="bg-white py-20 sm:py-28 lg:py-32">
-        <div className={`${wrap} grid items-stretch gap-10 lg:grid-cols-12`}>
-          <div className="flex flex-col justify-between lg:col-span-5">
-            <div>
-              <Label>Ubicación</Label>
-              <RevealLines id="ubicacion" className="t-display mt-6 text-graphite" lines={['El Talar,', <span className="t-accent text-re">Buenos Aires.</span>]} />
-              <Reveal delay={100}>
-                <address className="mt-8 text-lg leading-relaxed text-ink-soft not-italic">
-                  {contact.address.street}
-                  <br />
-                  {contact.address.between}
-                  <br />
-                  {contact.address.town}, {contact.address.province}
-                </address>
-              </Reveal>
-            </div>
-            <Reveal variant="fade" delay={200} className="mt-8">
-              <TextLink href={contact.mapsUrl} external className="text-re-700">
-                Abrir en Google Maps
-              </TextLink>
-            </Reveal>
-          </div>
-
-          {/* Espacio para el mapa (integración pendiente) */}
-          <Reveal variant="mask" className="lg:col-span-7">
+          {/* Ubicación */}
+          <div className="lg:col-span-5">
+            <Label>Ubicación</Label>
+            <address className="mt-5 text-lg leading-relaxed text-graphite not-italic">
+              {contact.address.street}, {contact.address.between}
+              <br />
+              {contact.address.town}, {contact.address.province}
+            </address>
+            <TextLink href={contact.mapsUrl} external className="mt-4 text-re-700">
+              Abrir en Google Maps
+            </TextLink>
             <div
               role="img"
               aria-label={`Espacio reservado para el mapa de ubicación: ${fullAddress}`}
-              className="placeholder-hatch relative flex h-full min-h-[340px] items-center justify-center overflow-hidden rounded-[1.75rem] border border-fog lg:min-h-[440px]"
+              className="placeholder-hatch mt-8 flex aspect-[4/3] items-center justify-center rounded-2xl border border-line"
             >
-              <svg aria-hidden className="absolute inset-0 h-full w-full text-fog" preserveAspectRatio="none" viewBox="0 0 800 400">
-                <path d="M0 260 C 200 230, 300 300, 520 240 S 760 180, 800 200" stroke="currentColor" strokeWidth="14" fill="none" />
-                <path d="M380 0 L 420 400" stroke="currentColor" strokeWidth="10" fill="none" />
-                <path d="M0 120 L 800 150" stroke="currentColor" strokeWidth="6" fill="none" />
-              </svg>
-              <div className="relative flex flex-col items-center gap-3 rounded-2xl bg-white/95 px-7 py-6 text-center shadow-[0_20px_40px_-24px_rgb(37_45_58/0.5)]">
-                <span className="flex size-12 items-center justify-center rounded-full bg-re-600 text-white">
-                  <Icon name="pin" size={22} />
+              <div className="flex flex-col items-center gap-3 text-center">
+                <span className="flex size-11 items-center justify-center rounded-full bg-white text-re shadow-sm">
+                  <Icon name="pin" size={20} />
                 </span>
-                <p className="font-display font-bold text-graphite">
-                  {contact.address.street} · {contact.address.town}
-                </p>
                 {SHOW_PENDING_NOTES ? <PendingBadge>Mapa interactivo pendiente</PendingBadge> : null}
               </div>
             </div>
-          </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Formulario: complementario */}
+      <section aria-labelledby="formulario" className="border-t border-line bg-smoke py-20 sm:py-24">
+        <div className={`${wrap} grid gap-10 lg:grid-cols-12 lg:gap-14`}>
+          <div className="lg:col-span-4">
+            <Label>Consultas generales</Label>
+            <h2 id="formulario" className="t-h2 mt-5 text-graphite">
+              ¿Preferís dejarnos un mensaje?
+            </h2>
+            <p className="mt-4 leading-relaxed text-ink-soft">Para consultas que no son presupuestos. Te respondemos por correo.</p>
+          </div>
+          <div className="rounded-2xl border border-line bg-white p-6 sm:p-9 lg:col-span-8">
+            <ContactForm />
+          </div>
         </div>
       </section>
     </>

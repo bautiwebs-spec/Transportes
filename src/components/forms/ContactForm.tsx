@@ -3,7 +3,7 @@ import { contact } from '../../data/company'
 import { submitContactForm, type ContactFormData } from '../../lib/contact'
 import { mailtoUrl, whatsappUrl } from '../../lib/whatsapp'
 import { Icon } from '../ui/Icon'
-import { ArrowSwap } from '../ui/Button'
+import { Arrow } from '../ui/Button'
 import { PendingNote } from '../ui/Pending'
 import { TextArea, TextField } from './Field'
 
@@ -97,11 +97,10 @@ export function ContactForm() {
         <button
           type="submit"
           disabled={state === 'sending'}
-          className="group/btn relative isolate inline-flex h-13 items-center justify-center gap-2.5 overflow-hidden rounded-full bg-graphite px-7 font-semibold text-white disabled:opacity-60"
+          className="group/btn inline-flex h-12 items-center justify-center gap-2.5 rounded-full bg-graphite px-7 font-semibold text-white transition-colors duration-300 hover:bg-graphite-900 disabled:opacity-60"
         >
-          <span aria-hidden className="absolute inset-0 -z-10 translate-y-[101%] rounded-full bg-re-600 transition-transform duration-500 ease-out-soft group-hover/btn:translate-y-0 group-focus-visible/btn:translate-y-0" />
           {state === 'sending' ? 'Enviando…' : 'Enviar consulta'}
-          <ArrowSwap />
+          <Arrow />
         </button>
       </div>
 

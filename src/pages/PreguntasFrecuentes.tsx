@@ -1,14 +1,11 @@
 import { contact, whatsappMessages } from '../data/company'
 import { faqs } from '../data/faqs'
 import { usePageMeta } from '../hooks/usePageMeta'
-import { whatsappUrl } from '../lib/whatsapp'
 import { Accordion } from '../components/ui/Accordion'
 import { Icon } from '../components/ui/Icon'
-import { Reveal } from '../components/motion/Reveal'
+import { Label, wrap } from '../components/ui/Label'
+import { Button, WhatsAppButton } from '../components/ui/Button'
 import { PageHero } from '../components/sections/PageHero'
-import { CtaBand } from '../components/sections/CtaBand'
-
-const wrap = 'mx-auto w-full max-w-[1320px] px-5 sm:px-8 lg:px-10'
 
 export function PreguntasFrecuentes() {
   usePageMeta(
@@ -20,55 +17,49 @@ export function PreguntasFrecuentes() {
     <>
       <PageHero
         label="Preguntas frecuentes"
-        lines={['Respuestas claras,', <>antes de <span className="t-accent text-re">tu consulta.</span></>]}
-        lead="Reunimos las preguntas más habituales sobre nuestro trabajo. Si no encontrás lo que buscás, escribinos."
+        title="Preguntas frecuentes"
+        lead="Las consultas más habituales sobre nuestro trabajo. Si no encontrás lo que buscás, escribinos."
       />
 
-      <section aria-label="Preguntas y respuestas" className="bg-smoke py-16 sm:py-24 lg:py-28">
+      <section aria-label="Preguntas y respuestas" className="bg-white py-20 sm:py-24 lg:py-28">
         <div className={`${wrap} grid gap-12 lg:grid-cols-12 lg:gap-16`}>
-          <aside className="lg:col-span-4">
-            <div className="lg:sticky lg:top-28">
-              <Reveal>
-                <p aria-hidden className="numeral-outline text-[clamp(6rem,12vw,11rem)] text-re">
-                  {String(faqs.length).padStart(2, '0')}
-                </p>
-                <p className="t-label mt-4 text-ink-soft">preguntas frecuentes</p>
-              </Reveal>
-              <Reveal delay={100} className="mt-10 rounded-2xl bg-graphite p-7 text-white sm:p-8">
-                <p className="font-display text-xl font-bold tracking-[-0.015em] [font-stretch:104%]">¿Preferís consultarnos directamente?</p>
-                <p className="mt-3 leading-relaxed text-white/65">WhatsApp es el canal más rápido para presupuestos y solicitudes de transporte.</p>
-                <ul className="mt-6 space-y-3 text-[0.95rem]">
-                  <li>
-                    <a href={whatsappUrl(whatsappMessages.faq)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 font-semibold text-white">
-                      <Icon name="whatsapp" size={18} className="text-re" /> <span className="link-u">{contact.phoneDisplay}</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href={`mailto:${contact.email}`} className="flex items-center gap-3 break-all text-white/85">
-                      <Icon name="mail" size={18} className="shrink-0 text-re" /> <span className="link-u">{contact.email}</span>
-                    </a>
-                  </li>
-                  <li className="flex items-center gap-3 text-white/65">
-                    <Icon name="clock" size={18} className="text-re" /> {contact.hoursShort}
-                  </li>
-                </ul>
-              </Reveal>
+          <div className="lg:col-span-8 lg:order-2">
+            <Accordion items={faqs} />
+          </div>
+          <aside className="lg:col-span-4 lg:order-1">
+            <div className="rounded-2xl bg-mist p-7 lg:sticky lg:top-28">
+              <Label>Consultas</Label>
+              <p className="mt-4 font-display text-xl font-semibold tracking-[-0.01em] text-graphite">¿No encontrás tu respuesta?</p>
+              <p className="mt-3 leading-relaxed text-ink-soft">Escribinos por WhatsApp y te respondemos de manera directa.</p>
+              <WhatsAppButton message={whatsappMessages.faq} className="mt-6 w-full" />
+              <ul className="mt-6 space-y-2.5 border-t border-fog pt-6 text-sm text-ink-soft">
+                <li className="flex items-center gap-2.5">
+                  <Icon name="phone" size={16} className="text-re" /> {contact.phoneDisplay}
+                </li>
+                <li className="flex items-center gap-2.5 break-all">
+                  <Icon name="mail" size={16} className="shrink-0 text-re" /> {contact.email}
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <Icon name="clock" size={16} className="text-re" /> {contact.hoursShort}
+                </li>
+              </ul>
             </div>
           </aside>
-          <Reveal delay={80} className="lg:col-span-8">
-            <Accordion items={faqs} />
-          </Reveal>
         </div>
       </section>
 
-      <CtaBand
-        tone="light"
-        label="¿Te quedó alguna duda?"
-        lines={['Escribinos', <>y lo <span className="t-accent text-re">conversamos.</span></>]}
-        text="Si tu pregunta no está acá, escribinos por WhatsApp y te respondemos de manera directa."
-        message={whatsappMessages.faq}
-        secondary="contact"
-      />
+      {/* Cierre breve */}
+      <section className="border-t border-line bg-smoke">
+        <div className={`${wrap} flex flex-col gap-6 py-14 sm:flex-row sm:items-center sm:justify-between`}>
+          <p className="font-display text-[1.4rem] font-semibold tracking-[-0.015em] text-graphite">¿Te quedó alguna duda?</p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <WhatsAppButton message={whatsappMessages.faq} />
+            <Button to="/contacto" variant="secondary" arrow>
+              Otros canales
+            </Button>
+          </div>
+        </div>
+      </section>
     </>
   )
 }
